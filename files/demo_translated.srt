@@ -1,0 +1,28 @@
+1
+00:00:40,040 --> 00:00:42,076
+<b>(BIRDS AND ANIMALS CHATTERING)</b>
+<font color="yellow">(Tiếng chim chóc và động vật râm ran)</font>
+
+2
+00:01:04,481 --> 00:01:07,598
+<b>BAGHEERA:</b> Many strange tales
+<i>are told of this Jungle...</i>
+<font color="yellow">Nhiều câu chuyện kỳ lạ được kể về khu rừng này...</font>
+
+3
+00:01:07,776 --> 00:01:09,641
+<i>but none so strange...</i>
+<font color="yellow">nhưng không cái nào kỳ lạ đến thế...</font>
+
+4
+00:01:09,820 --> 00:01:13,062
+<i>as the tale of the cub
+we call Mowgli.</i>
+<font color="yellow">Như câu chuyện về đứa bé con mà chúng ta gọi là Mowgli.</font>
+
+5
+00:02:25,270 --> 00:02:27,886
+You must be the very
+worst wolf I've ever seen.
+<font color="yellow">Mày chắc hẳn là con sói dở nhất tao từng thấy.</font>
+

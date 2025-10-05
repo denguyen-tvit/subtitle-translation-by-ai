@@ -1,0 +1,39 @@
+# Environment variables
+.env
+
+# Virtual environment
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+translation.log
+
+# Ignore all files in files/ directory
+files/*
+
+# But keep demo files
+!files/demo.srt
+!files/demo_translated.srt
+
+# macOS
+.DS_Store
