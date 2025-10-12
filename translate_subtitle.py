@@ -6,7 +6,7 @@ from config import GEMINI_API_KEY
 # Configure Gemini
 genai.configure(api_key=GEMINI_API_KEY)
 
-def translate_subtitle(input_file, output_file, target_language='Vietnamese', batch_size=50, start_from=1):
+def translate_subtitle(input_file, output_file, target_language='Vietnamese', batch_size=50, start_from=1, end_at=None):
     """
     Translate subtitle file using Google Gemini in batches
 
@@ -16,6 +16,7 @@ def translate_subtitle(input_file, output_file, target_language='Vietnamese', ba
         target_language: Target language for translation (default: Vietnamese)
         batch_size: Number of subtitles to translate per batch (default: 50)
         start_from: Subtitle number to start from (default: 1)
+        end_at: Subtitle number to end at (default: None = translate all)
     """
 
     # Load subtitle file
@@ -26,18 +27,20 @@ def translate_subtitle(input_file, output_file, target_language='Vietnamese', ba
 
     # Calculate starting batch
     start_index = start_from - 1
+    end_index = end_at if end_at else len(subs)
     total_batches = (len(subs) + batch_size - 1) // batch_size
-    remaining = len(subs) - start_index
+    remaining = end_index - start_index
 
     print(f"Translating {len(subs)} subtitle entries to {target_language}...")
-    if start_from > 1:
-        print(f"Resuming from subtitle #{start_from} ({remaining} remaining)")
+    if start_from > 1 or end_at:
+        range_text = f"#{start_from}" + (f" to #{end_at}" if end_at else " to end")
+        print(f"Processing range: {range_text} ({remaining} subtitles)")
     print(f"Using batch mode: {batch_size} subtitles per batch ({total_batches} batches)")
     print(f"Estimated time: ~{(remaining // batch_size + 1) * 10 / 60:.1f} minutes")
 
     # Process in batches, starting from start_index
-    for batch_num in range(start_index, len(subs), batch_size):
-        batch_end = min(batch_num + batch_size, len(subs))
+    for batch_num in range(start_index, end_index, batch_size):
+        batch_end = min(batch_num + batch_size, end_index)
         batch_subs = subs[batch_num:batch_end]
 
         max_retries = 3
@@ -54,6 +57,7 @@ def translate_subtitle(input_file, output_file, target_language='Vietnamese', ba
 
                 prompt = f"""Translate these subtitles to {target_language}.
 Return ONLY the translations in the same numbered format [1], [2], etc.
+Each translation should be on the SAME LINE as its number, even if it's long.
 Keep the same number of entries. Do not add explanations.
 
 {batch_content}"""
@@ -61,15 +65,14 @@ Keep the same number of entries. Do not add explanations.
                 response = model.generate_content(prompt)
                 translations = response.text.strip()
 
-                # Parse translations
+                # Parse translations - handle multi-line by using regex
+                import re
                 trans_lines = []
-                for line in translations.split('\n'):
-                    line = line.strip()
-                    if line and line.startswith('['):
-                        # Extract text after [N]
-                        if ']' in line:
-                            trans_text = line.split(']', 1)[1].strip()
-                            trans_lines.append(trans_text)
+                # Match [N] followed by any text up to the next [N] or end
+                pattern = r'\[(\d+)\]\s*(.+?)(?=\[\d+\]|$)'
+                matches = re.findall(pattern, translations, re.DOTALL)
+                for num, text in matches:
+                    trans_lines.append(text.strip())
 
                 # Apply translations to subtitles
                 for i, sub in enumerate(batch_subs):
@@ -108,7 +111,8 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        print("Usage: python translate_subtitle.py <input.srt> [output.srt] [language] [start_from]")
+        print("Usage: python translate_subtitle.py <input.srt> [output.srt] [language] [start_from] [end_at]")
+        print("Example: python translate_subtitle.py movie.srt movie_vi.srt Vietnamese 1 150")
         print("Example: python translate_subtitle.py movie.srt movie_vi.srt Vietnamese 151")
         sys.exit(1)
 
@@ -116,5 +120,6 @@ if __name__ == "__main__":
     output_file = sys.argv[2] if len(sys.argv) > 2 else input_file.replace('.srt', '_translated.srt')
     language = sys.argv[3] if len(sys.argv) > 3 else 'Vietnamese'
     start_from = int(sys.argv[4]) if len(sys.argv) > 4 else 1
+    end_at = int(sys.argv[5]) if len(sys.argv) > 5 else None
 
-    translate_subtitle(input_file, output_file, language, batch_size=50, start_from=start_from)
+    translate_subtitle(input_file, output_file, language, batch_size=50, start_from=start_from, end_at=end_at)

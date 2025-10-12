@@ -7,9 +7,12 @@ A Python application that uses Google Gemini AI to translate film subtitles.
 - Translate subtitle files (.srt) to any language
 - Powered by Google Gemini AI (gemini-2.5-flash model)
 - Vietnamese translation appears in yellow below English text
+- **Batch processing**: Translates 50 subtitles per batch for efficiency
 - Automatic rate limiting (10 requests/min for free tier)
-- Auto-save progress every 50 subtitles
+- Auto-save progress after each batch
 - Retry logic for rate limit errors
+- Resume capability: Start from specific subtitle number
+- Range support: Translate specific subtitle ranges
 - Environment-based configuration
 - Simple command-line interface
 
@@ -76,6 +79,18 @@ python translate_subtitle.py input.srt output.srt
 python translate_subtitle.py input.srt output.srt Spanish
 ```
 
+### Resume translation from specific subtitle
+
+```bash
+python translate_subtitle.py input.srt output.srt Vietnamese 151
+```
+
+### Translate specific range of subtitles
+
+```bash
+python translate_subtitle.py input.srt output.srt Vietnamese 1 150
+```
+
 ### For large files (run in background)
 
 For files with many subtitles (1000+ lines), use `nohup` to run in background:
@@ -127,14 +142,15 @@ The script automatically handles rate limiting with 6-second delays between requ
 
 ## Notes
 
-- The script translates each subtitle entry individually
+- The script processes subtitles in **batches of 50** for efficiency
 - Vietnamese translation appears in **yellow color** below English text
 - Translation progress is shown in the terminal
-- Progress auto-saves every 50 subtitles
-- **Estimated time**: ~6 seconds per subtitle (e.g., 1200 subtitles ≈ 2 hours)
+- Progress auto-saves after each batch
+- **Estimated time**: ~6 seconds per batch (e.g., 1200 subtitles = 24 batches ≈ 2.4 minutes)
 - Make sure your API key has sufficient quota
 - Always activate the virtual environment before running the script
 - The script will retry automatically if rate limits are hit
+- Use resume feature to continue from where you left off if interrupted
 
 ## Deactivate Virtual Environment
 
